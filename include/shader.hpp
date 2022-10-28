@@ -8,9 +8,10 @@ BEGIN_VISUALIZER_NAMESPACE
 class Shader
 {
 public:
-	Shader(const char* vertexShaderPath, const char* fragmentShaderPath) :
+	Shader(const char* vertexShaderPath, const char* fragmentShaderPath, const char* shaderLibPath = nullptr) :
 		m_VertexShaderPath(vertexShaderPath),
 		m_FragmentShaderPath(fragmentShaderPath),
+		m_ShaderLibPath(shaderLibPath),
 		m_ShaderProgram(0)
 	{}
 	~Shader() = default;
@@ -29,6 +30,7 @@ private:
 	GLuint m_ShaderProgram;
 	const char* m_VertexShaderPath;
 	const char* m_FragmentShaderPath;
+	const char* m_ShaderLibPath;
 };
 
 END_VISUALIZER_NAMESPACE

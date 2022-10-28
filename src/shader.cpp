@@ -21,6 +21,27 @@ bool Shader::Initialize()
 	GL_CALL(glAttachShader, m_ShaderProgram, vertexShaderID);
 	GL_CALL(glAttachShader, m_ShaderProgram, fragmentShaderID);
 
+	// Read the shader lib code from the file
+	std::string shaderLibCode = "";
+	if (m_ShaderLibPath != nullptr)
+	{
+		std::ifstream shaderLibStream(m_ShaderLibPath, std::ios::in);
+		if (shaderLibStream.is_open())
+		{
+			std::string line = "";
+			while (std::getline(shaderLibStream, line))
+			{
+				shaderLibCode += "\n" + line;
+			}
+			shaderLibStream.close();
+		}
+		else
+		{
+			std::cerr << "Impossible to open " << m_ShaderLibPath << "." << std::endl;
+			return false;
+		}
+	}
+
 	// Read the Vertex Shader code from the file
 	std::string vertexShaderCode;
 	std::ifstream vertexShaderStream(m_VertexShaderPath, std::ios::in);
@@ -53,7 +74,10 @@ bool Shader::Initialize()
 		return false;
 	}
 
-	GLint result = GL_FALSE;
+	// Add shader lib code to the shader code
+	vertexShaderCode = shaderLibCode + vertexShaderCode;
+	fragmentShaderCode = shaderLibCode + fragmentShaderCode;
+	
 	int infoLogLength;
 
 	// Compile Vertex Shader
