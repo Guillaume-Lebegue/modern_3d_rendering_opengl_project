@@ -1,6 +1,8 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
+#include "Object.hpp"
+
 BEGIN_VISUALIZER_NAMESPACE
 
 class Camera;
@@ -38,6 +40,8 @@ private:
 
     std::shared_ptr<Camera> m_Camera;
     uint32_t m_ViewportWidth, m_ViewportHeight;
+
+    Modern3DRendering::Object m_test_obj;
 };
 
 END_VISUALIZER_NAMESPACE
