@@ -3,8 +3,6 @@
 
 BEGIN_VISUALIZER_NAMESPACE
 
-#include <GL/glew.h>
-
 class Shader
 {
 public:
