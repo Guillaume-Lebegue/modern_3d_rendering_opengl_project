@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <GL/glew.h>
 #include <glutils.hpp>
+#include <filesystem>
 #pragma warning(pop, 0)
 
 BEGIN_VISUALIZER_NAMESPACE
@@ -32,6 +33,7 @@ namespace Modern3DRendering {
         std::vector<tinyobj::material_t> m_material;
 
         std::string m_err;
+        std::string m_warn;
 
         std::vector<Vertice> *m_vertices;
         std::vector<uint16_t> *m_indices;

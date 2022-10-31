@@ -1,3 +1,5 @@
+#define TINYOBJLOADER_IMPLEMENTATION
+
 #include "Object.hpp"
 
 BEGIN_VISUALIZER_NAMESPACE
@@ -10,12 +12,11 @@ Modern3DRendering::Object::~Object()
 {
 }
 
-#define TINYOBJLOADER_IMPLEMENTATION
-
 void Modern3DRendering::Object::Initialize(std::string path)
 {
+    path = "../../" + path;
     //Load object
-    //tinyobj::LoadObj(&m_attribute, &m_shape, &m_material, &m_err, path.c_str());
+    tinyobj::LoadObj(&m_attribute, &m_shape, &m_material, &m_warn, &m_err, path.c_str(), NULL, true);
 
     if (!m_err.empty())
         std::cerr << "WARN: " << m_err << std::endl;
