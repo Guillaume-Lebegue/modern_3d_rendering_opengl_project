@@ -276,8 +276,11 @@ void main()
 
     m_UBOData = GL_CALL_REINTERPRET_CAST_RETURN_VALUE(glm::mat4*, glMapNamedBufferRange, m_UBO, 0, sizeof(glm::mat4), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
 
-    m_test_obj.Initialize("res/palm.obj");
+    m_tree.Initialize("res/palm.obj");
+    m_desert.Initialize("res/desert.obj");
 
+    std::ifstream tree_info_file;
+    tree_info_file.open("../../");
     return true;
 }
 

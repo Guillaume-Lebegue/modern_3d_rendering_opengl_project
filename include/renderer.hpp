@@ -41,7 +41,9 @@ private:
     std::shared_ptr<Camera> m_Camera;
     uint32_t m_ViewportWidth, m_ViewportHeight;
 
-    Modern3DRendering::Object m_test_obj;
+    Modern3DRendering::Object m_tree;
+    Modern3DRendering::Object m_desert;
+    std::vector<glm::vec3> m_trees_info;
 };
 
 END_VISUALIZER_NAMESPACE
