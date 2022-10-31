@@ -277,10 +277,23 @@ void main()
     m_UBOData = GL_CALL_REINTERPRET_CAST_RETURN_VALUE(glm::mat4*, glMapNamedBufferRange, m_UBO, 0, sizeof(glm::mat4), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
 
     m_tree.Initialize("res/palm.obj");
-    m_desert.Initialize("res/desert.obj");
+    //m_desert.Initialize("res/desert.obj");
 
     std::ifstream tree_info_file;
-    tree_info_file.open("../../");
+    tree_info_file.open("../../res/palmTransfo.txt");
+    int nbr_trees;
+    tree_info_file >> nbr_trees;
+    std::cout << nbr_trees << "palm trees" << std::endl;
+    while (nbr_trees > 0) {
+        float x, y, z, w;
+        tree_info_file >> x >> y >> z >> w;
+
+        glm::vec4 new_pos(x, y, z, w);
+
+        m_trees_info.push_back(new_pos);
+        nbr_trees--;
+        std::cout << nbr_trees << " trees left" << std::endl;
+    }
     return true;
 }
 
