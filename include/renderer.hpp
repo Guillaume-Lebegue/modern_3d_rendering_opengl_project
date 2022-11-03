@@ -43,6 +43,7 @@ private:
 
     Modern3DRendering::Object m_tree;
     Modern3DRendering::Object m_desert;
+    
     std::vector<glm::vec4> m_trees_info;
 };
 

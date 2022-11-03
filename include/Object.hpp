@@ -20,13 +20,10 @@ namespace Modern3DRendering {
         
         void Initialize(std::string path);
 
-        void Render();
+        void Bind();
+        void Cleanup();
+        size_t GetIndexes();
 
-        struct Vertice
-        {
-            glm::vec3 position;
-            glm::vec3 color;
-        };
     private:
         tinyobj::attrib_t m_attribute;
         std::vector<tinyobj::shape_t> m_shape;
@@ -35,10 +32,11 @@ namespace Modern3DRendering {
         std::string m_err;
         std::string m_warn;
 
-        std::vector<Vertice> *m_vertices;
-        std::vector<uint16_t> *m_indices;
+        std::vector<tinyobj::real_t> m_vertices;
+        std::vector<tinyobj::index_t> m_indices;
 
-        GLuint m_VBO, m_IBO, m_UBO;
+        GLuint m_VBO, m_IBO, m_VAO;
+        size_t m_indexes;
 
         glm::mat4* m_UBOData = nullptr;
     };

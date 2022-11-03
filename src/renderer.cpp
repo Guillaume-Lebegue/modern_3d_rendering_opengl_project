@@ -292,7 +292,6 @@ void main()
 
         m_trees_info.push_back(new_pos);
         nbr_trees--;
-        std::cout << nbr_trees << " trees left" << std::endl;
     }
     return true;
 }
@@ -308,6 +307,8 @@ void Renderer::Render()
     GL_CALL(glDrawElements, GL_TRIANGLES, m_IndexCount, GL_UNSIGNED_SHORT, nullptr);
     GL_CALL(glBindVertexArray, 0);
     GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, 0, 0);
+
+    m_tree.Bind();
 
     GL_CALL(glUseProgram, 0);
 }
