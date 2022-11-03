@@ -7,6 +7,12 @@ layout(location = 0) out vec3 vNormal;
 
 layout(std140, binding = 0) uniform uniformLayout{
     mat4 viewProjectionMatrix;
+    vec4 ambiant;
+    vec4 foamAmbiant;
+    vec4 diffuse;
+    vec4 foamDiffuse;
+    vec4 specular;
+    vec4 foamSpecular;
 };
 
 layout(std430, binding = 1) buffer transformLayout{

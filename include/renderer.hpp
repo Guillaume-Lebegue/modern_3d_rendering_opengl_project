@@ -11,6 +11,17 @@ class Camera;
 class Renderer
 {
 public:
+    struct UBOData
+    {
+        glm::mat4 viewProjectionMatrix;
+        glm::vec4 ambiant;
+        glm::vec4 foamAmbiant;
+        glm::vec4 diffuse;
+        glm::vec4 foamDiffuse;
+        glm::vec4 specular;
+        glm::vec4 foamSpecular;
+    };
+
     Renderer(uint32_t width, uint32_t height, const std::shared_ptr<Camera>& camera)
         : m_ViewportWidth(width)
         , m_ViewportHeight(height)
@@ -41,7 +52,7 @@ private:
 
     uint32_t m_IndexCount;
 
-    glm::mat4* m_UBOData;
+    UBOData* m_UBOData;
 
     std::shared_ptr<Camera> m_Camera;
     uint32_t m_ViewportWidth, m_ViewportHeight;

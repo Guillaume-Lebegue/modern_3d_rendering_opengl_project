@@ -130,13 +130,29 @@ void GenerateSphereMesh(std::vector<VertexDataPosition3fColor3f>& vertices, std:
 bool Renderer::Initialize()
 {
     GL_CALL(glCreateBuffers, 1, &m_UBO);
-    GL_CALL(glNamedBufferStorage, m_UBO, sizeof(glm::mat4), glm::value_ptr(m_Camera->GetViewProjectionMatrix()), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
 
-    m_UBOData = GL_CALL_REINTERPRET_CAST_RETURN_VALUE(glm::mat4*, glMapNamedBufferRange, m_UBO, 0, sizeof(glm::mat4), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
+    glm::vec4 LightDir = glm::normalize(glm::vec4(-0.5f, -1.0f, 0.25f, 0.0f));
+
+    UBOData uboData;
+
+    uboData.viewProjectionMatrix = m_Camera->GetViewProjectionMatrix();
+
+    uboData.ambiant = glm::vec4(0.0188235f, 0.0188235f, 0.0188235f, 1.0f);
+    uboData.foamAmbiant = glm::vec4(0.0898039f, 0.0898039f, 0.0898039f, 1.0f);
+
+    uboData.diffuse = glm::vec4(0.188235f, 0.380392f, 0.690196f, 1.0f);
+    uboData.foamDiffuse = glm::vec4(0.898039f, 0.898039f, 0.898039f, 1.0f);
+
+    uboData.specular = glm::vec4(1.0f, 1.0f, 1.0f, 6.f);
+    uboData.foamSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 10.0f);
+
+    GL_CALL(glNamedBufferStorage, m_UBO, sizeof(UBOData), &uboData/*glm::value_ptr(m_Camera->GetViewProjectionMatrix())*/ , GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
+
+    m_UBOData = GL_CALL_REINTERPRET_CAST_RETURN_VALUE(UBOData*, glMapNamedBufferRange, m_UBO, 0, sizeof(UBOData), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
 
     m_tree.Initialize("res/palm.obj");
     m_tree.InitTransfo("res/palmTransfo.txt");
-    m_desert.Initialize("res/desert.obj");
+    //m_desert.Initialize("res/desert.obj");
 
     if (!m_tree_shader.Initialize()) return false;
 	if (!m_desert_shader.Initialize()) return false;
@@ -149,7 +165,7 @@ void Renderer::Render()
 
     GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, 0, m_UBO);
     Draw(m_tree, m_tree_shader, true);
-    Draw(m_desert, m_desert_shader);
+    //Draw(m_desert, m_desert_shader);
 
     GL_CALL(glBindVertexArray, 0);
     GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, 0, 0);
@@ -165,7 +181,7 @@ void Renderer::Cleanup()
 
     GL_CALL(glDeleteBuffers, 1, &m_UBO);
     m_tree.Cleanup();
-	m_desert.Cleanup();
+	//m_desert.Cleanup();
     m_tree_shader.Cleanup();
 	m_desert_shader.Cleanup();
 }
