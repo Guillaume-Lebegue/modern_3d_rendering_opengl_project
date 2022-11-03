@@ -5,6 +5,7 @@
 BEGIN_VISUALIZER_NAMESPACE
 
 Modern3DRendering::Object::Object()
+    : m_TBO{0}
 {
 }
 
@@ -51,7 +52,7 @@ bool Modern3DRendering::Object::Initialize(std::string path)
             m_vertices.push_back(
                 Vertex{
                     glm::vec3{*v, *(v + 1), *(v + 2) },
-				    glm::vec3{0, 0, 0},
+				    glm::vec3{1, 1, 1},
                     glm::vec3{0, 0, 0},
                 }
             );
@@ -101,7 +102,7 @@ bool Modern3DRendering::Object::InitTransfo(std::string path)
     tree_info_file.open(path);
     int nbr_trees;
     tree_info_file >> nbr_trees;
-    std::cout << nbr_trees << "palm trees" << std::endl;
+    std::cout << nbr_trees << " elements" << std::endl;
     while (nbr_trees > 0) {
         float x, y, z, w;
         tree_info_file >> x >> y >> z >> w;
