@@ -12,12 +12,16 @@ Modern3DRendering::Object::~Object()
 {
 }
 
-void Modern3DRendering::Object::Initialize(std::string path)
+bool Modern3DRendering::Object::Initialize(std::string path)
 {
     path = "../../" + path;
     //Load object
     std::cout << "reading file " << path << std::endl;
-    tinyobj::LoadObj(&m_attribute, &m_shape, &m_material, &m_warn, &m_err, path.c_str(), NULL, true);
+    if (!tinyobj::LoadObj(&m_attribute, &m_shape, &m_material, &m_warn, &m_err, path.c_str(), NULL, true)) {
+        if (!m_err.empty())
+            std::cerr << "WARN: " << m_err << std::endl;
+        return false;
+    }
 
     if (!m_err.empty())
         std::cerr << "WARN: " << m_err << std::endl;
@@ -52,6 +56,7 @@ void Modern3DRendering::Object::Initialize(std::string path)
 
     GL_CALL(glEnableVertexAttribArray, 0);
     GL_CALL(glVertexAttribPointer, 0, 3, GL_FLOAT, GL_FALSE, sizeof(tinyobj::real_t) * 3, nullptr);
+    return true;
 }
 
 void Modern3DRendering::Object::Bind()

@@ -18,7 +18,7 @@ namespace Modern3DRendering {
         Object();
         ~Object();
         
-        void Initialize(std::string path);
+        bool Initialize(std::string path);
 
         void Bind();
         void Cleanup();
