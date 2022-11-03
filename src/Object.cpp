@@ -37,7 +37,8 @@ bool Modern3DRendering::Object::Initialize(std::string path)
 			m_vertices.push_back(
 				Vertex{
 					glm::vec3(m_attribute.vertices[i * 3], m_attribute.vertices[i * 3 + 1], m_attribute.vertices[i * 3 + 2]),
-					glm::vec3(m_attribute.normals[i * 3], m_attribute.normals[i * 3 + 1], m_attribute.normals[i * 3 + 2])
+					glm::vec3(m_attribute.normals[i * 3], m_attribute.normals[i * 3 + 1], m_attribute.normals[i * 3 + 2]),
+					glm::vec3(0.0f, 0.0f, 0.0f)
 				}
 			);
 			//std::cout << "normal.x: " << m_attribute.normals[i * 3] << std::endl;
@@ -47,14 +48,13 @@ bool Modern3DRendering::Object::Initialize(std::string path)
         std::cout << "Default normal" << std::endl;
         for (std::vector<tinyobj::real_t>::const_iterator v = m_attribute.GetVertices().begin(); v != m_attribute.GetVertices().end(); v += 3)
         {
-            m_vertices.push_back({
-                glm::vec3{
-                    *v,
-                    *(v + 1),
-                    *(v + 2)
-                },
-				glm::vec3{0, 0, 0}
-                });
+            m_vertices.push_back(
+                Vertex{
+                    glm::vec3{*v, *(v + 1), *(v + 2) },
+				    glm::vec3{0, 0, 0},
+                    glm::vec3{0, 0, 0},
+                }
+            );
         }
     }
 
@@ -75,8 +75,10 @@ bool Modern3DRendering::Object::Initialize(std::string path)
 
     GL_CALL(glEnableVertexAttribArray, 0);
     GL_CALL(glEnableVertexAttribArray, 1);
+    GL_CALL(glEnableVertexAttribArray, 3);
     GL_CALL(glVertexAttribPointer, 0, 3, GL_FLOAT, GL_FALSE, sizeof(Modern3DRendering::Vertex), nullptr);
 	GL_CALL(glVertexAttribPointer, 1, 3, GL_FLOAT, GL_FALSE, sizeof(Modern3DRendering::Vertex), (void*)offsetof(Modern3DRendering::Vertex, normal));
+    GL_CALL(glVertexAttribPointer, 2, 3, GL_FLOAT, GL_FALSE, sizeof(Modern3DRendering::Vertex), (void*)offsetof(Modern3DRendering::Vertex, transform));
 	
     GL_CALL(glBindVertexArray, 0);
     GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
@@ -84,6 +86,7 @@ bool Modern3DRendering::Object::Initialize(std::string path)
 	
     GL_CALL(glDisableVertexAttribArray, 0);
     GL_CALL(glDisableVertexAttribArray, 1);
+    GL_CALL(glDisableVertexAttribArray, 2);
     return true;
 }
 
