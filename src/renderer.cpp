@@ -129,155 +129,15 @@ void GenerateSphereMesh(std::vector<VertexDataPosition3fColor3f>& vertices, std:
 
 bool Renderer::Initialize()
 {
-    constexpr uint16_t sphereStackCount = 63;
-    constexpr uint16_t sphereSectorCount = 63;
-
-    constexpr uint16_t vertexCount = (sphereStackCount + 1) * (sphereSectorCount + 1);
-    constexpr uint16_t indexCount = (sphereStackCount - 1) * sphereSectorCount * 6;
-
-    m_IndexCount = indexCount;
-
-    std::vector<VertexDataPosition3fColor3f> vertices(vertexCount);
-    std::vector<uint16_t> indices(indexCount);
-
-    GenerateSphereMesh(vertices, indices, sphereStackCount, sphereSectorCount, glm::vec3(0.0f), 1.0f);
-
     GL_CALL(glCreateBuffers, 1, &m_UBO);
     GL_CALL(glNamedBufferStorage, m_UBO, sizeof(glm::mat4), glm::value_ptr(m_Camera->GetViewProjectionMatrix()), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
-
-    GL_CALL(glCreateBuffers, 1, &m_VBO);
-    GL_CALL(glNamedBufferStorage, m_VBO, sizeof(VertexDataPosition3fColor3f) * vertexCount, vertices.data(), 0);
-
-    GL_CALL(glCreateBuffers, 1, &m_IBO);
-    GL_CALL(glNamedBufferStorage, m_IBO, sizeof(uint16_t) * indexCount, indices.data(), 0);
-
-    GL_CALL(glCreateVertexArrays, 1, &m_VAO);
-    GL_CALL(glBindVertexArray, m_VAO);
-
-    GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, m_VBO);
-    GL_CALL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, m_IBO);
-
-    GL_CALL(glEnableVertexAttribArray, 0);
-    GL_CALL(glVertexAttribPointer, 0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexDataPosition3fColor3f), nullptr);
-    GL_CALL(glEnableVertexAttribArray, 1);
-    GL_CALL(glVertexAttribPointer, 1, 3, GL_FLOAT, GL_FALSE, sizeof(VertexDataPosition3fColor3f), reinterpret_cast<GLvoid*>(sizeof(glm::vec3)));
-
-    GL_CALL(glBindVertexArray, 0);
-
-    GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
-    GL_CALL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    GL_CALL(glDisableVertexAttribArray, 0);
-    GL_CALL(glDisableVertexAttribArray, 1);
-
-    GLuint vShader = GL_CALL(glCreateShader, GL_VERTEX_SHADER);
-    GLuint fShader = GL_CALL(glCreateShader, GL_FRAGMENT_SHADER);
-
-    m_ShaderProgram = glCreateProgram();
-
-    GL_CALL(glAttachShader, m_ShaderProgram, vShader);
-    GL_CALL(glAttachShader, m_ShaderProgram, fShader);
-
-    {
-        char const* const vertexShader =
-R"(#version 450 core
-
-layout(location = 0) in vec3 inWorldPos;
-layout(location = 1) in vec3 inColor;
-
-layout(location = 0) smooth out vec3 color;
-
-layout(std140, binding = 0) uniform Matrix
-{
-    mat4 modelViewProjection;
-};
-
-void main()
-{
-    color = inColor;
-    gl_Position = modelViewProjection*vec4(inWorldPos, 1.);
-}
-)";
-
-        GL_CALL(glShaderSource, vShader, 1, &vertexShader, nullptr);
-
-        GL_CALL(glCompileShader, vShader);
-
-        {
-            GLint length = 0;
-
-            GL_CALL(glGetShaderiv, vShader, GL_INFO_LOG_LENGTH, &length);
-
-            if (length > 1)
-            {
-                std::string log(length, '\0');
-
-                GL_CALL(glGetShaderInfoLog, vShader, length, nullptr, log.data());
-
-                std::cerr << "Vertex shader log:\n" << log << '\n';
-            }
-        }
-
-        char const* const fragmentShader =
-R"(#version 450 core
-
-layout(location = 0) out vec4 outColor;
-
-layout(location = 0) smooth in vec3 color;
-
-void main()
-{
-    outColor = vec4(color, 1.0);
-}
-)";
-
-        GL_CALL(glShaderSource, fShader, 1, &fragmentShader, nullptr);
-
-        GL_CALL(glCompileShader, fShader);
-
-        {
-            GLint length = 0;
-
-            GL_CALL(glGetShaderiv, fShader, GL_INFO_LOG_LENGTH, &length);
-
-            if (length > 1)
-            {
-                std::string log(length, '\0');
-
-                GL_CALL(glGetShaderInfoLog, fShader, length, nullptr, log.data());
-
-                std::cerr << "Vertex shader log:\n" << log << '\n';
-            }
-        }
-    }
-
-    GL_CALL(glLinkProgram, m_ShaderProgram);
-
-    {
-        GLint length = 0;
-
-        GL_CALL(glGetProgramiv, m_ShaderProgram, GL_INFO_LOG_LENGTH, &length);
-
-        if (length > 1)
-        {
-            std::string log(length, '\0');
-
-            GL_CALL(glGetProgramInfoLog, m_ShaderProgram, length, nullptr, log.data());
-
-            std::cerr << "Shader program log:\n" << log << '\n';
-        }
-    }
-
-    GL_CALL(glDetachShader, m_ShaderProgram, vShader);
-    GL_CALL(glDetachShader, m_ShaderProgram, fShader);
-
-    GL_CALL(glDeleteShader, vShader);
-    GL_CALL(glDeleteShader, fShader);
 
     m_UBOData = GL_CALL_REINTERPRET_CAST_RETURN_VALUE(glm::mat4*, glMapNamedBufferRange, m_UBO, 0, sizeof(glm::mat4), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
 
     m_tree.Initialize("res/palm.obj");
     //m_desert.Initialize("res/desert.obj");
+
+    if (!m_tree_shader.Initialize()) return false;
 
     std::ifstream tree_info_file;
     tree_info_file.open("../../res/palmTransfo.txt");
@@ -300,15 +160,11 @@ void Renderer::Render()
 {
     GL_CALL(glClear, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    GL_CALL(glUseProgram, m_ShaderProgram);
-
     GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, 0, m_UBO);
-    GL_CALL(glBindVertexArray, m_VAO);
-    GL_CALL(glDrawElements, GL_TRIANGLES, m_IndexCount, GL_UNSIGNED_SHORT, nullptr);
+    Draw(m_tree, m_tree_shader);
+
     GL_CALL(glBindVertexArray, 0);
     GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, 0, 0);
-
-    m_tree.Bind();
 
     GL_CALL(glUseProgram, 0);
 }
@@ -319,14 +175,9 @@ void Renderer::Cleanup()
 
     GL_CALL(glUnmapNamedBuffer, m_UBO);
 
-    GL_CALL(glDeleteBuffers, 1, &m_VBO);
-    GL_CALL(glDeleteBuffers, 1, &m_IBO);
     GL_CALL(glDeleteBuffers, 1, &m_UBO);
-
-    GL_CALL(glDeleteVertexArrays, 1, &m_VAO);
-
-    GL_CALL(glDeleteProgram, m_ShaderProgram);
-
+    m_tree.Cleanup();
+    m_tree_shader.Cleanup();
 }
 
 void Renderer::UpdateViewport(uint32_t width, uint32_t height)
@@ -349,7 +200,8 @@ void Renderer::UpdateCamera()
 
 void Renderer::Draw(Modern3DRendering::Object& object, Shader& shader) {
     shader.Use();
-	
+    object.Bind();
+    GL_CALL(glDrawElements, GL_TRIANGLES, (uint32_t)object.GetIndexes(), GL_UNSIGNED_SHORT, nullptr);
 }
 
 END_VISUALIZER_NAMESPACE

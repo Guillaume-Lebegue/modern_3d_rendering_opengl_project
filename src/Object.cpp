@@ -30,12 +30,12 @@ void Modern3DRendering::Object::Initialize(std::string path)
         });
     m_indices = std::vector<uint16_t>({1, 2, 3});
     */
-
+	
     m_vertices = m_attribute.vertices;
     m_indices = m_shape[0].mesh.indices;
 
     size_t vertexCount = m_vertices.size();
-    size_t indexCount = m_indices.size();
+    m_indexes = m_indices.size();
 
     // Create the VBO, IBO and UBO and initialize them
     GL_CALL(glCreateBuffers, 1, &m_VBO);
@@ -44,7 +44,7 @@ void Modern3DRendering::Object::Initialize(std::string path)
     
     // Map the UBO
     GL_CALL(glNamedBufferStorage, m_VBO, sizeof(tinyobj::real_t) * vertexCount, m_vertices.data(), 0);
-    GL_CALL(glNamedBufferStorage, m_IBO, sizeof(tinyobj::index_t) * indexCount, m_indices.data(), 0);
+    GL_CALL(glNamedBufferStorage, m_IBO, sizeof(tinyobj::index_t) * m_indexes, m_indices.data(), 0);
     GL_CALL(glBindVertexArray, m_VAO);
 
     GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, m_VBO);
