@@ -330,4 +330,9 @@ void Renderer::UpdateCamera()
     GL_CALL(glFlushMappedNamedBufferRange, m_UBO, 0, sizeof(glm::mat4));
 }
 
+void Renderer::Draw(Modern3DRendering::Object& object, Shader& shader) {
+    shader.Use();
+	
+}
+
 END_VISUALIZER_NAMESPACE

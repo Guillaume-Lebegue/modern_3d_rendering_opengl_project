@@ -2,6 +2,7 @@
 #define RENDERER_HPP
 
 #include "Object.hpp"
+#include "shader.hpp"
 
 BEGIN_VISUALIZER_NAMESPACE
 
@@ -30,6 +31,8 @@ public:
 
     void UpdateViewport(uint32_t width, uint32_t height);
     void UpdateCamera();
+
+	void Draw(Modern3DRendering::Object& object, Shader& shader);
 
 private:
     GLuint m_UBO, m_VBO, m_IBO, m_VAO, m_ShaderProgram;
