@@ -12,6 +12,11 @@
 BEGIN_VISUALIZER_NAMESPACE
 
 namespace Modern3DRendering {
+	struct Vertex {
+		glm::vec3 position;
+		glm::vec3 normal;
+	};
+	
     class Object
     {
     public:
@@ -33,7 +38,7 @@ namespace Modern3DRendering {
         std::string m_err;
         std::string m_warn;
 
-        std::vector<glm::vec3> m_vertices;
+        std::vector<Vertex> m_vertices;
         std::vector<int> m_indices;
 
         GLuint m_VBO, m_IBO, m_VAO;

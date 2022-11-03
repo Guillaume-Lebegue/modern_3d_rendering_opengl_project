@@ -16,6 +16,7 @@ public:
         , m_ViewportHeight(height)
         , m_Camera(camera)
 		, m_tree_shader("../../res/palm.vertex.shader.c", "../../res/palm.fragment.shader.c")
+		, m_desert_shader("../../res/palm.vertex.shader.c", "../../res/palm.fragment.shader.c")
     {}
 
     Renderer() = delete;
@@ -49,6 +50,7 @@ private:
     Modern3DRendering::Object m_desert;
 
     Shader m_tree_shader;
+    Shader m_desert_shader;
     
     std::vector<glm::vec4> m_trees_info;
 };

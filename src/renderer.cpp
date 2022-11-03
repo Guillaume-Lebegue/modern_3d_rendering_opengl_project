@@ -138,6 +138,7 @@ bool Renderer::Initialize()
     //m_desert.Initialize("res/desert.obj");
 
     if (!m_tree_shader.Initialize()) return false;
+	if (!m_desert_shader.Initialize()) return false;
 
     std::ifstream tree_info_file;
     tree_info_file.open("../../res/palmTransfo.txt");
@@ -162,6 +163,7 @@ void Renderer::Render()
 
     GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, 0, m_UBO);
     Draw(m_tree, m_tree_shader, true);
+    //Draw(m_desert, m_desert_shader);
 
     GL_CALL(glBindVertexArray, 0);
     GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, 0, 0);
@@ -177,7 +179,9 @@ void Renderer::Cleanup()
 
     GL_CALL(glDeleteBuffers, 1, &m_UBO);
     m_tree.Cleanup();
+	//m_desert.Cleanup();
     m_tree_shader.Cleanup();
+	m_desert_shader.Cleanup();
 }
 
 void Renderer::UpdateViewport(uint32_t width, uint32_t height)
