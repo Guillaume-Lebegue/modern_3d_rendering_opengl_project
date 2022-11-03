@@ -15,6 +15,7 @@ namespace Modern3DRendering {
 	struct Vertex {
 		glm::vec3 position;
 		glm::vec3 normal;
+        glm::vec3 transform;
 	};
 	
     class Object
