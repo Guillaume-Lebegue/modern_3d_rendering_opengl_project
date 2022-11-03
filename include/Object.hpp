@@ -28,13 +28,12 @@ namespace Modern3DRendering {
         tinyobj::ObjReader m_reader;
 
         tinyobj::attrib_t m_attribute;
-        std::vector<tinyobj::shape_t> m_shape;
-        std::vector<tinyobj::material_t> m_material;
+        tinyobj::shape_t m_shape;
 
         std::string m_err;
         std::string m_warn;
 
-        std::vector<tinyobj::real_t> m_vertices;
+        std::vector<glm::vec3> m_vertices;
         std::vector<int> m_indices;
 
         GLuint m_VBO, m_IBO, m_VAO;

@@ -161,7 +161,7 @@ void Renderer::Render()
     GL_CALL(glClear, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, 0, m_UBO);
-    Draw(m_tree, m_tree_shader);
+    Draw(m_tree, m_tree_shader, true);
 
     GL_CALL(glBindVertexArray, 0);
     GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, 0, 0);
@@ -198,10 +198,16 @@ void Renderer::UpdateCamera()
     GL_CALL(glFlushMappedNamedBufferRange, m_UBO, 0, sizeof(glm::mat4));
 }
 
-void Renderer::Draw(Modern3DRendering::Object& object, Shader& shader) {
+void Renderer::Draw(Modern3DRendering::Object& object, Shader& shader, bool backAndFront) {
     shader.Use();
     object.Bind();
-    GL_CALL(glDrawElements, GL_TRIANGLES, (uint32_t)object.GetIndexes(), GL_UNSIGNED_SHORT, nullptr);
+	if (backAndFront) {
+		GL_CALL(glDisable, GL_CULL_FACE);
+	}
+    GL_CALL(glDrawElements, GL_TRIANGLES, static_cast<uint32_t>(object.GetIndexes()), GL_UNSIGNED_INT, nullptr);
+	if (backAndFront) {
+		GL_CALL(glDisable, GL_CULL_FACE);
+	}
 }
 
 END_VISUALIZER_NAMESPACE

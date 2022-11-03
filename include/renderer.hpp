@@ -33,7 +33,7 @@ public:
     void UpdateViewport(uint32_t width, uint32_t height);
     void UpdateCamera();
 
-	void Draw(Modern3DRendering::Object& object, Shader& shader);
+	void Draw(Modern3DRendering::Object& object, Shader& shader, bool backAndFront = false);
 
 private:
     GLuint m_UBO, m_VBO, m_IBO, m_VAO, m_ShaderProgram;
