@@ -90,9 +90,19 @@ bool Modern3DRendering::Object::Initialize(std::string path)
     return true;
 }
 
+bool Modern3DRendering::Object::InitTransfo()
+{
+    GL_CALL(glCreateBuffers, 1, &m_TBO);
+
+	// set m_transforms
+
+	GL_CALL(glNamedBufferStorage, m_TBO, sizeof(glm::vec4) * m_transforms.size(), m_transforms.data(), 0);
+}
+
 void Modern3DRendering::Object::Bind()
 {
     GL_CALL(glBindVertexArray, m_VAO);
+	GL_CALL(glBindBufferBase, GL_SHADER_STORAGE_BUFFER, 1, m_TBO);
 }
 
 void Modern3DRendering::Object::Cleanup()

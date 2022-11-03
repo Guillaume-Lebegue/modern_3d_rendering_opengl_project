@@ -26,6 +26,8 @@ namespace Modern3DRendering {
         
         bool Initialize(std::string path);
 
+        bool InitTransfo();
+
         void Bind();
         void Cleanup();
         size_t GetIndexes();
@@ -41,8 +43,9 @@ namespace Modern3DRendering {
 
         std::vector<Vertex> m_vertices;
         std::vector<int> m_indices;
+		std::vector<glm::vec4> m_transforms;
 
-        GLuint m_VBO, m_IBO, m_VAO;
+		GLuint m_VBO, m_IBO, m_VAO, m_TBO;
         size_t m_indexes;
 
         glm::mat4* m_UBOData = nullptr;
