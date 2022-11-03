@@ -25,6 +25,8 @@ namespace Modern3DRendering {
         size_t GetIndexes();
 
     private:
+        tinyobj::ObjReader m_reader;
+
         tinyobj::attrib_t m_attribute;
         std::vector<tinyobj::shape_t> m_shape;
         std::vector<tinyobj::material_t> m_material;
@@ -33,7 +35,7 @@ namespace Modern3DRendering {
         std::string m_warn;
 
         std::vector<tinyobj::real_t> m_vertices;
-        std::vector<tinyobj::index_t> m_indices;
+        std::vector<int> m_indices;
 
         GLuint m_VBO, m_IBO, m_VAO;
         size_t m_indexes;

@@ -17,26 +17,31 @@ bool Modern3DRendering::Object::Initialize(std::string path)
     path = "../../" + path;
     //Load object
     std::cout << "reading file " << path << std::endl;
+    /*
     if (!tinyobj::LoadObj(&m_attribute, &m_shape, &m_material, &m_warn, &m_err, path.c_str(), NULL, true)) {
         if (!m_err.empty())
             std::cerr << "WARN: " << m_err << std::endl;
         return false;
     }
-
     if (!m_err.empty())
         std::cerr << "WARN: " << m_err << std::endl;
-    
-    /*
-    m_vertices = std::vector<Vertice>({
-        Vertice(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0)),
-        Vertice(glm::vec3(10, 0, 0), glm::vec3(0, 0, 0)),
-        Vertice(glm::vec3(0, 10, 0), glm::vec3(0, 0, 0))
-        });
-    m_indices = std::vector<uint16_t>({1, 2, 3});
     */
+    m_reader.ParseFromFile(path);
+    if (!m_reader.Valid()) {
+        std::cerr << "WARN: " << m_reader.Warning() << std::endl;
+        std::cerr << "ERR: " << m_reader.Error() << std::endl;
+        return false;
+    }
+
+    m_attribute = m_reader.GetAttrib();
+    m_shape = m_reader.GetShapes();
 	
     m_vertices = m_attribute.vertices;
-    m_indices = m_shape[0].mesh.indices;
+    //m_indices = m_shape[0].mesh.indices;
+
+    for (tinyobj::index_t index : m_shape[0].mesh.indices) {
+        m_indices.push_back(index.vertex_index);
+    }
 
     size_t vertexCount = m_vertices.size();
     m_indexes = m_indices.size();
@@ -48,7 +53,7 @@ bool Modern3DRendering::Object::Initialize(std::string path)
     
     // Map the UBO
     GL_CALL(glNamedBufferStorage, m_VBO, sizeof(tinyobj::real_t) * vertexCount, m_vertices.data(), 0);
-    GL_CALL(glNamedBufferStorage, m_IBO, sizeof(tinyobj::index_t) * m_indexes, m_indices.data(), 0);
+    GL_CALL(glNamedBufferStorage, m_IBO, sizeof(int) * m_indexes, m_indices.data(), 0);
     GL_CALL(glBindVertexArray, m_VAO);
 
     GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, m_VBO);
