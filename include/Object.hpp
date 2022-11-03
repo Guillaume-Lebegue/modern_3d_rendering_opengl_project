@@ -26,11 +26,12 @@ namespace Modern3DRendering {
         
         bool Initialize(std::string path);
 
-        bool InitTransfo();
+        bool InitTransfo(std::string path);
 
         void Bind();
         void Cleanup();
         size_t GetIndexes();
+        size_t GetNbrObjects();
 
     private:
         tinyobj::ObjReader m_reader;

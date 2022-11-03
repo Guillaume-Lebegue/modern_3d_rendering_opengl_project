@@ -9,8 +9,12 @@ layout(std140, binding = 0) uniform uniformLayout{
     mat4 viewProjectionMatrix;
 };
 
+layout(std430, binding = 1) buffer transformLayout{
+    vec4 transforms[];
+};
+
 void main()
 {
     vNormal = normal;
-    gl_Position = viewProjectionMatrix * vec4(position.x, position.y, position.z, 1);
+    gl_Position = viewProjectionMatrix * vec4(position.x + transforms[gl_InstanceID].x, position.y + transforms[gl_InstanceID].y, position.z + transforms[gl_InstanceID].z, 1);
 }

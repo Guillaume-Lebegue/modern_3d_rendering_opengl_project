@@ -135,25 +135,11 @@ bool Renderer::Initialize()
     m_UBOData = GL_CALL_REINTERPRET_CAST_RETURN_VALUE(glm::mat4*, glMapNamedBufferRange, m_UBO, 0, sizeof(glm::mat4), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
 
     m_tree.Initialize("res/palm.obj");
+    m_tree.InitTransfo("res/palmTransfo.txt");
     //m_desert.Initialize("res/desert.obj");
 
     if (!m_tree_shader.Initialize()) return false;
 	if (!m_desert_shader.Initialize()) return false;
-
-    std::ifstream tree_info_file;
-    tree_info_file.open("../../res/palmTransfo.txt");
-    int nbr_trees;
-    tree_info_file >> nbr_trees;
-    std::cout << nbr_trees << "palm trees" << std::endl;
-    while (nbr_trees > 0) {
-        float x, y, z, w;
-        tree_info_file >> x >> y >> z >> w;
-
-        glm::vec4 new_pos(x, y, z, w);
-
-        m_trees_info.push_back(new_pos);
-        nbr_trees--;
-    }
     return true;
 }
 
@@ -208,7 +194,13 @@ void Renderer::Draw(Modern3DRendering::Object& object, Shader& shader, bool back
 	if (backAndFront) {
 		GL_CALL(glDisable, GL_CULL_FACE);
 	}
-    GL_CALL(glDrawElements, GL_TRIANGLES, static_cast<uint32_t>(object.GetIndexes()), GL_UNSIGNED_INT, nullptr);
+    size_t nbr_objects = object.GetNbrObjects();
+    if (nbr_objects == 0) {
+        GL_CALL(glDrawElements, GL_TRIANGLES, static_cast<uint32_t>(object.GetIndexes()), GL_UNSIGNED_INT, nullptr);
+    }
+    else {
+        GL_CALL(glDrawElementsInstanced, GL_TRIANGLES, static_cast<uint32_t>(object.GetIndexes()), GL_UNSIGNED_INT, nullptr, static_cast<uint32_t>(nbr_objects));
+    }
 	if (backAndFront) {
 		GL_CALL(glDisable, GL_CULL_FACE);
 	}

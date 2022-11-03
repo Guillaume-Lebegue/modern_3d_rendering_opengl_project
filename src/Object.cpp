@@ -90,13 +90,30 @@ bool Modern3DRendering::Object::Initialize(std::string path)
     return true;
 }
 
-bool Modern3DRendering::Object::InitTransfo()
+bool Modern3DRendering::Object::InitTransfo(std::string path)
 {
+    path = "../../" + path;
+
     GL_CALL(glCreateBuffers, 1, &m_TBO);
 
 	// set m_transforms
+    std::ifstream tree_info_file;
+    tree_info_file.open(path);
+    int nbr_trees;
+    tree_info_file >> nbr_trees;
+    std::cout << nbr_trees << "palm trees" << std::endl;
+    while (nbr_trees > 0) {
+        float x, y, z, w;
+        tree_info_file >> x >> y >> z >> w;
+
+        glm::vec4 new_pos(x, y, z, w);
+
+        m_transforms.push_back(new_pos);
+        nbr_trees--;
+    }
 
 	GL_CALL(glNamedBufferStorage, m_TBO, sizeof(glm::vec4) * m_transforms.size(), m_transforms.data(), 0);
+    return true;
 }
 
 void Modern3DRendering::Object::Bind()
@@ -116,6 +133,11 @@ void Modern3DRendering::Object::Cleanup()
 size_t Modern3DRendering::Object::GetIndexes()
 {
     return m_indexes;
+}
+
+size_t Modern3DRendering::Object::GetNbrObjects()
+{
+    return m_transforms.size();
 }
 
 END_VISUALIZER_NAMESPACE
