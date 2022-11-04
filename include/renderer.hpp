@@ -17,9 +17,12 @@ public:
         glm::mat4 viewMatrix;
         glm::mat4 normalMatrix;
         glm::vec4 lightDirViewSpace;
-        glm::vec4 ambiant;
-        glm::vec4 diffuse;
-        glm::vec4 specular;
+        glm::vec4 ambiant_palm;
+        glm::vec4 diffuse_palm;
+        glm::vec4 specular_palm;
+        glm::vec4 ambiant_desert;
+        glm::vec4 diffuse_desert;
+        glm::vec4 specular_desert;
     };
 
     Renderer(uint32_t width, uint32_t height, const std::shared_ptr<Camera>& camera)

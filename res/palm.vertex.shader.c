@@ -11,9 +11,12 @@ layout(std140, binding = 0) uniform uniformLayout{
     mat4 viewMatrix;
     mat4 normalMatrix;
     vec4 lightDirViewSpace;
-    vec4 ambiant;
-    vec4 diffuse;
-    vec4 specular;
+    vec4 ambiant_palm;
+    vec4 diffuse_palm;
+    vec4 specular_palm;
+    vec4 ambiant_desert;
+    vec4 diffuse_desert;
+    vec4 specular_desert;
 };
 
 layout(std430, binding = 1) buffer transformLayout{
