@@ -131,27 +131,26 @@ bool Renderer::Initialize()
 {
     GL_CALL(glCreateBuffers, 1, &m_UBO);
 
-    glm::vec4 LightDir = glm::normalize(glm::vec4(-0.5f, -1.0f, 0.25f, 0.0f));
+    m_LightDir = glm::normalize(glm::vec4(-0.5f, -1.0f, 0.25f, 0.0f));
 
     UBOData uboData;
 
     uboData.viewProjectionMatrix = m_Camera->GetViewProjectionMatrix();
+    uboData.viewMatrix = m_Camera->GetViewMatrix();
+    uboData.normalMatrix = glm::transpose(glm::inverse(m_Camera->GetViewMatrix()));
+    uboData.lightDirViewSpace = uboData.viewMatrix * m_LightDir;
 
-    uboData.ambiant = glm::vec4(0.0188235f, 0.0188235f, 0.0188235f, 1.0f);
-    uboData.foamAmbiant = glm::vec4(0.0898039f, 0.0898039f, 0.0898039f, 1.0f);
-
+    uboData.ambiant = glm::vec4(0.2313725f, 0.0901961f, 0.0431372f, 1.0f);
     uboData.diffuse = glm::vec4(0.188235f, 0.380392f, 0.690196f, 1.0f);
-    uboData.foamDiffuse = glm::vec4(0.898039f, 0.898039f, 0.898039f, 1.0f);
-
-    uboData.specular = glm::vec4(1.0f, 1.0f, 1.0f, 6.f);
-    uboData.foamSpecular = glm::vec4(1.0f, 1.0f, 1.0f, 10.0f);
+    uboData.specular = glm::vec4(0.0313725f, 0.5411765f, 0.0313725f, 1.f);
 
     GL_CALL(glNamedBufferStorage, m_UBO, sizeof(UBOData), &uboData/*glm::value_ptr(m_Camera->GetViewProjectionMatrix())*/ , GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
 
     m_UBOData = GL_CALL_REINTERPRET_CAST_RETURN_VALUE(UBOData*, glMapNamedBufferRange, m_UBO, 0, sizeof(UBOData), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
 
     m_tree.Initialize("res/palm.obj");
-    m_tree.InitTransfo("res/palmTransfo.txt");
+    //m_tree.InitTransfo("res/palmTransfo.txt");
+    m_tree.FindNormal();
     //m_desert.Initialize("res/desert.obj");
 
     if (!m_tree_shader.Initialize()) return false;
@@ -166,6 +165,7 @@ void Renderer::Render()
     GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, 0, m_UBO);
     Draw(m_tree, m_tree_shader, true);
     //Draw(m_desert, m_desert_shader);
+    //Draw(m_desert, m_tree_shader);
 
     GL_CALL(glBindVertexArray, 0);
     GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, 0, 0);
@@ -194,14 +194,28 @@ void Renderer::UpdateViewport(uint32_t width, uint32_t height)
     glViewport(0, 0, m_ViewportWidth, m_ViewportHeight);
     m_Camera->ComputeProjection(m_ViewportWidth, m_ViewportHeight);
 
-    std::memcpy(m_UBOData, glm::value_ptr(m_Camera->GetViewProjectionMatrix()), sizeof(glm::mat4));
-    GL_CALL(glFlushMappedNamedBufferRange, m_UBO, 0, sizeof(glm::mat4));
+    m_UBOData->viewProjectionMatrix = m_Camera->GetViewProjectionMatrix();
+    m_UBOData->viewMatrix = m_Camera->GetViewMatrix();
+    m_UBOData->normalMatrix = glm::transpose(glm::inverse(m_Camera->GetViewMatrix()));
+    m_UBOData->lightDirViewSpace = m_UBOData->viewMatrix * m_LightDir;
+
+    GL_CALL(glFlushMappedNamedBufferRange, m_UBO, 0, sizeof(UBOData));
 }
 
 void Renderer::UpdateCamera()
 {
+    /*
     std::memcpy(m_UBOData, glm::value_ptr(m_Camera->GetViewProjectionMatrix()), sizeof(glm::mat4));
+
     GL_CALL(glFlushMappedNamedBufferRange, m_UBO, 0, sizeof(glm::mat4));
+    */
+
+    m_UBOData->viewProjectionMatrix = m_Camera->GetViewProjectionMatrix();
+    m_UBOData->viewMatrix = m_Camera->GetViewMatrix();
+    m_UBOData->normalMatrix = glm::transpose(glm::inverse(m_Camera->GetViewMatrix()));
+    m_UBOData->lightDirViewSpace = m_UBOData->viewMatrix * m_LightDir;
+
+    GL_CALL(glFlushMappedNamedBufferRange, m_UBO, 0, sizeof(UBOData));
 }
 
 void Renderer::Draw(Modern3DRendering::Object& object, Shader& shader, bool backAndFront) {

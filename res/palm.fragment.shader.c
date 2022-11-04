@@ -1,46 +1,50 @@
 #version 450 core
 layout(location = 0) out vec4 outColor;
 
+layout(location = 1) in vec3 eyeVec;
 layout(location = 0) in vec3 vNormal;
 
 layout(std140, binding = 0) uniform uniformLayout{
     mat4 viewProjectionMatrix;
+    mat4 viewMatrix;
+    mat4 normalMatrix;
+    vec4 lightDirViewSpace;
     vec4 ambiant;
-    vec4 foamAmbiant;
     vec4 diffuse;
-    vec4 foamDiffuse;
     vec4 specular;
-    vec4 foamSpecular;
 };
 
-vec3 computeAmbientLightning(float foam)
+vec3 computeAmbientLightning()
 {
-    return mix(ambiant.xyz, foamAmbiant.xyz, foam);
+    return ambiant.xyz;
 }
 
-vec3 computeDiffuseLightning(vec3 LightVector, vec3 normal, float foam)
+vec3 computeDiffuseLightning(vec3 lightDir, vec3 normal)
 {
-    float lambertTerm = max(dot(normal, LightVector), 0.0f);
+    float lambertTern = max(dot(normal, -lightDir), 0.0f);
 
-    return mix(diffuse.xyz, foamDiffuse.xyz, foam) * lambertTerm;
+    return diffuse.xyz * lambertTern * 0.5f;
 }
 
-vec3 computeSpecularLightning(vec3 LightVector, vec3 normal)
+vec3 computeSpecularLightning(vec3 lightDir, vec3 normal, vec3 eyeVector)
 {
-//    vec3 r = reflect(LightVector, vNormal);
+    vec4 mixedSpecular = specular;
 
-//    return pow(max(dot(r, eyeVector), 0.0f), specularPower) * specularColor;
-    return vec3(0, 0, 0);
+    vec3 r = reflect(lightDir, normal);
+
+    float directional = pow(max(dot(r, eyeVector), 0.0f), 2);
+
+    return mixedSpecular.rgb * directional;
 }
 
 void main()
 {
-    vec3 LightVector = normalize(vec3(-1., 2., 6.));
-    float foam = 0.5f;
+    vec3 newNormal = mat3(normalMatrix) * vNormal;
+    vec3 lightDir = normalize(lightDirViewSpace.xyz);
 
-    vec3 final_color = computeAmbientLightning(foam);
-    final_color += computeDiffuseLightning(LightVector, vNormal, foam);
-    //final_color += computeSpecularLightning(LightVector, vNormal);
+    vec3 final_color = computeAmbientLightning();
+    final_color += computeDiffuseLightning(lightDir, newNormal);
+    final_color += computeSpecularLightning(lightDir, newNormal, normalize(eyeVec));
 
     outColor = vec4(final_color, 1);
 }

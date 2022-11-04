@@ -14,12 +14,12 @@ public:
     struct UBOData
     {
         glm::mat4 viewProjectionMatrix;
+        glm::mat4 viewMatrix;
+        glm::mat4 normalMatrix;
+        glm::vec4 lightDirViewSpace;
         glm::vec4 ambiant;
-        glm::vec4 foamAmbiant;
         glm::vec4 diffuse;
-        glm::vec4 foamDiffuse;
         glm::vec4 specular;
-        glm::vec4 foamSpecular;
     };
 
     Renderer(uint32_t width, uint32_t height, const std::shared_ptr<Camera>& camera)
@@ -64,6 +64,8 @@ private:
     Shader m_desert_shader;
     
     std::vector<glm::vec4> m_trees_info;
+
+    glm::vec4 m_LightDir;
 };
 
 END_VISUALIZER_NAMESPACE
