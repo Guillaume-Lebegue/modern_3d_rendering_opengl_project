@@ -31,6 +31,7 @@ public:
         , m_Camera(camera)
 		, m_tree_shader("../../res/palm.vertex.shader.c", "../../res/palm.fragment.shader.c")
 		, m_desert_shader("../../res/desert.vertex.shader.c", "../../res/desert.fragment.shader.c")
+        , m_screen_shader("../../res/screen.vertex.shader.c", "../../res/screen.fragment.shader.c")
     {}
 
     Renderer() = delete;
@@ -51,7 +52,7 @@ public:
 	void Draw(Modern3DRendering::Object& object, Shader& shader, bool backAndFront = false);
 
 private:
-    GLuint m_UBO, m_VBO, m_IBO, m_VAO, m_ShaderProgram;
+	GLuint m_UBO, m_FBO, m_FBOTexture, m_quadVBO, m_quadVAO, m_RBO;
 
     uint32_t m_IndexCount;
 
@@ -65,6 +66,7 @@ private:
 
     Shader m_tree_shader;
     Shader m_desert_shader;
+    Shader m_screen_shader;
     
     std::vector<glm::vec4> m_trees_info;
 

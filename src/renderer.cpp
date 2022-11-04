@@ -130,6 +130,11 @@ void GenerateSphereMesh(std::vector<VertexDataPosition3fColor3f>& vertices, std:
 bool Renderer::Initialize()
 {
     GL_CALL(glCreateBuffers, 1, &m_UBO);
+    GL_CALL(glGenFramebuffers, 1, &m_FBO);
+    GL_CALL(glGenVertexArrays, 1, &m_quadVAO);
+	GL_CALL(glGenBuffers, 1, &m_quadVBO);
+	GL_CALL(glGenTextures, 1, &m_FBOTexture);
+	GL_CALL(glGenRenderbuffers, 1, &m_RBO);
 
     m_LightDir = glm::normalize(glm::vec4(-0.5f, -1.0f, 0.25f, 0.0f));
 
@@ -151,6 +156,27 @@ bool Renderer::Initialize()
     GL_CALL(glNamedBufferStorage, m_UBO, sizeof(UBOData), &uboData/*glm::value_ptr(m_Camera->GetViewProjectionMatrix())*/ , GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
 
     m_UBOData = GL_CALL_REINTERPRET_CAST_RETURN_VALUE(UBOData*, glMapNamedBufferRange, m_UBO, 0, sizeof(UBOData), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
+	
+    float quadVertices[] = {
+        // positions   // texCoords
+        -1.0f,  1.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f,  0.0f, 0.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+
+        -1.0f,  1.0f,  0.0f, 1.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+         1.0f,  1.0f,  1.0f, 1.0f
+    };
+
+	GL_CALL(glBindVertexArray, m_quadVAO);
+	GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, m_quadVBO);
+	GL_CALL(glBufferData, GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+	GL_CALL(glEnableVertexAttribArray, 0);
+	GL_CALL(glVertexAttribPointer, 0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
+	GL_CALL(glEnableVertexAttribArray, 1);
+	GL_CALL(glVertexAttribPointer, 1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+	GL_CALL(glBindVertexArray, 0);
+	GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
 
     m_tree.Initialize("res/palm.obj");
     m_tree.InitTransfo("res/palmTransfo.txt");
@@ -158,17 +184,56 @@ bool Renderer::Initialize()
 
     if (!m_tree_shader.Initialize()) return false;
 	if (!m_desert_shader.Initialize()) return false;
+    if (!m_screen_shader.Initialize()) return false;
+
+	GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, m_FBO);
+
+	GL_CALL(glBindTexture, GL_TEXTURE_2D, m_FBOTexture);
+	GL_CALL(glTexImage2D, GL_TEXTURE_2D, 0, GL_RGBA, m_ViewportWidth, m_ViewportHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+	GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	GL_CALL(glTexParameteri, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	GL_CALL(glBindTexture, GL_TEXTURE_2D, 0);
+    GL_CALL(glFramebufferTexture, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, m_FBOTexture, 0);
+	
+	
+	GL_CALL(glBindRenderbuffer, GL_RENDERBUFFER, m_RBO);
+	GL_CALL(glRenderbufferStorage, GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_ViewportWidth, m_ViewportHeight);
+	GL_CALL(glFramebufferRenderbuffer, GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RBO);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        std::cout << "Framebuffer error" << std::endl;
+        return false;
+    }
+	GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, 0);
+
     return true;
 }
 
 void Renderer::Render()
 {
+	GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, m_FBO);
+    GL_CALL(glEnable, GL_DEPTH_TEST);
+	
     GL_CALL(glClear, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, 0, m_UBO);
     Draw(m_tree, m_tree_shader, true);
     Draw(m_desert, m_desert_shader);
 
+    GL_CALL(glBindVertexArray, 0);
+    GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, 0, 0);
+
+    GL_CALL(glUseProgram, 0);
+	
+	GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, 0);
+    GL_CALL(glDisable, GL_DEPTH_TEST);
+    GL_CALL(glClear, GL_COLOR_BUFFER_BIT);
+	
+    m_screen_shader.Use();
+    GL_CALL(glBindVertexArray, m_quadVAO);
+	GL_CALL(glBindTexture, GL_TEXTURE_2D, m_FBOTexture);
+    GL_CALL(glDrawArrays, GL_TRIANGLES, 0, 6);
+	
     GL_CALL(glBindVertexArray, 0);
     GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, 0, 0);
 
@@ -181,7 +246,9 @@ void Renderer::Cleanup()
 
     GL_CALL(glUnmapNamedBuffer, m_UBO);
 
+    GL_CALL(glDeleteVertexArrays, 1, &m_quadVAO);
     GL_CALL(glDeleteBuffers, 1, &m_UBO);
+    GL_CALL(glDeleteBuffers, 1, &m_quadVAO);
     m_tree.Cleanup();
 	m_desert.Cleanup();
     m_tree_shader.Cleanup();
