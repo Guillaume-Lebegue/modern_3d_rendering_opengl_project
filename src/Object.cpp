@@ -141,4 +141,25 @@ size_t Modern3DRendering::Object::GetNbrObjects()
     return m_transforms.size();
 }
 
+void Modern3DRendering::Object::FindNormal()
+{
+    for (size_t i = 0; i < m_indices.size(); i += 3)
+    {
+        glm::vec3 v1 = m_vertices[m_indices[i]].position;
+        glm::vec3 v2 = m_vertices[m_indices[i + 1]].position;
+        glm::vec3 v3 = m_vertices[m_indices[i + 2]].position;
+
+        glm::vec3 normal = glm::normalize(glm::cross(v2 - v1, v3 - v1));
+
+        m_vertices[m_indices[i]].normal += normal;
+        m_vertices[m_indices[i + 1]].normal += normal;
+        m_vertices[m_indices[i + 2]].normal += normal;
+    }
+
+	for (size_t i = 0; i < m_vertices.size(); i++)
+	{
+		m_vertices[i].normal = glm::normalize(m_vertices[i].normal);
+	}
+}
+
 END_VISUALIZER_NAMESPACE
