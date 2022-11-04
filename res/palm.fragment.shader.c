@@ -13,19 +13,19 @@ layout(std140, binding = 0) uniform uniformLayout{
     vec4 foamSpecular;
 };
 
-vec3 computeAmbientLightning()
+vec3 computeAmbientLightning(float foam)
 {
-    return vec3(0, 0, 0);
+    return mix(ambiant.xyz, foamAmbiant.xyz, foam);
 }
 
-vec3 computeDiffuseLightning(vec3 LightVector)
+vec3 computeDiffuseLightning(vec3 LightVector, vec3 normal, float foam)
 {
-    float lambertTerm = max(dot(vNormal, LightVector), 0.0f);
+    float lambertTerm = max(dot(normal, LightVector), 0.0f);
 
-    return vec3(0.5, 0.5, 0.05) * lambertTerm;
+    return mix(diffuse.xyz, foamDiffuse.xyz, foam) * lambertTerm;
 }
 
-vec3 computeSpecularLightning(vec3 LightVector)
+vec3 computeSpecularLightning(vec3 LightVector, vec3 normal)
 {
 //    vec3 r = reflect(LightVector, vNormal);
 
@@ -36,10 +36,11 @@ vec3 computeSpecularLightning(vec3 LightVector)
 void main()
 {
     vec3 LightVector = normalize(vec3(-1., 2., 6.));
+    float foam = 0.5f;
 
-    vec3 final_color = computeAmbientLightning();
-    final_color += computeDiffuseLightning(LightVector);
-    final_color += computeSpecularLightning(LightVector);
+    vec3 final_color = computeAmbientLightning(foam);
+    final_color += computeDiffuseLightning(LightVector, vNormal, foam);
+    //final_color += computeSpecularLightning(LightVector, vNormal);
 
     outColor = vec4(final_color, 1);
 }
