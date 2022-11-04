@@ -37,7 +37,7 @@ vec3 computeSpecularLightning(vec3 lightDir, vec3 normal, vec3 eyeVector)
 
     float directional = pow(max(dot(r, eyeVector), 0.0f), 2);
 
-    return mixedSpecular.rgb * directional / 50;
+    return mixedSpecular.rgb * directional / 3.5f;
 }
 
 void main()

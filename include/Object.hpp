@@ -24,7 +24,7 @@ namespace Modern3DRendering {
         Object();
         ~Object();
         
-        bool Initialize(std::string path);
+        bool Initialize(std::string path, bool find_normal=false);
         void FindNormal();
 
         bool InitTransfo(std::string path);

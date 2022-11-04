@@ -13,7 +13,7 @@ Modern3DRendering::Object::~Object()
 {
 }
 
-bool Modern3DRendering::Object::Initialize(std::string path)
+bool Modern3DRendering::Object::Initialize(std::string path, bool find_normal)
 {
     path = "../../" + path;
     //Load object
@@ -52,10 +52,14 @@ bool Modern3DRendering::Object::Initialize(std::string path)
             m_vertices.push_back(
                 Vertex{
                     glm::vec3{*v, *(v + 1), *(v + 2) },
-				    glm::vec3{1, 1, 1},
+                    glm::vec3{0, 0, 0},
                     glm::vec3{0, 0, 0},
                 }
             );
+        }
+        if (find_normal) {
+            std::cout << "Find normal" << std::endl;
+            FindNormal();
         }
     }
 
@@ -151,9 +155,26 @@ void Modern3DRendering::Object::FindNormal()
 
         glm::vec3 normal = glm::normalize(glm::cross(v2 - v1, v3 - v1));
 
+        if (i < 20) {
+            std::cout << "v1" << v1.x << " " << v1.y << " " << v1.z << std::endl;
+            std::cout << "v2" << v2.x << " " << v2.y << " " << v2.z << std::endl;
+            std::cout << "v3" << v3.x << " " << v3.y << " " << v3.z << std::endl;
+
+            std::cout << "normal" << normal.x << " " << normal.y << " " << normal.z << std::endl;
+
+            std::cout << "__ normal" << m_vertices[m_indices[i]].normal.x << " " << m_vertices[m_indices[i]].normal.y << " " << m_vertices[m_indices[i]].normal.z << std::endl;
+            std::cout << "__ normal" << m_vertices[m_indices[i + 1]].normal.x << " " << m_vertices[m_indices[i + 1]].normal.y << " " << m_vertices[m_indices[i + 1]].normal.z << std::endl;
+            std::cout << "__ normal" << m_vertices[m_indices[i + 2]].normal.x << " " << m_vertices[m_indices[i + 2]].normal.y << " " << m_vertices[m_indices[i + 2]].normal.z << std::endl;
+        }
+
         m_vertices[m_indices[i]].normal += normal;
         m_vertices[m_indices[i + 1]].normal += normal;
         m_vertices[m_indices[i + 2]].normal += normal;
+        if (i < 20) {
+            std::cout << "end __ normal" << m_vertices[m_indices[i]].normal.x << " " << m_vertices[m_indices[i]].normal.y << " " << m_vertices[m_indices[i]].normal.z << std::endl;
+            std::cout << "end __ normal" << m_vertices[m_indices[i + 1]].normal.x << " " << m_vertices[m_indices[i + 1]].normal.y << " " << m_vertices[m_indices[i + 1]].normal.z << std::endl;
+            std::cout << "end __ normal" << m_vertices[m_indices[i + 2]].normal.x << " " << m_vertices[m_indices[i + 2]].normal.y << " " << m_vertices[m_indices[i + 2]].normal.z << std::endl;
+        }
     }
 
 	for (size_t i = 0; i < m_vertices.size(); i++)

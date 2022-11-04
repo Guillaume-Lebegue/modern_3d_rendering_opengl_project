@@ -146,7 +146,7 @@ bool Renderer::Initialize()
 
     uboData.ambiant_desert = glm::vec4(0.2313725f, 0.0901961f, 0.0431372f, 1.0f);
     uboData.diffuse_desert = glm::vec4(0.9607843f, 0.8156863f, 0.6627451f, 1.0f);
-    uboData.specular_desert = glm::vec4(0.0313725f, 0.5411765f, 0.0313725f, 1.0f);
+    uboData.specular_desert = glm::vec4(1., 1., 1., 1.0f);
 
     GL_CALL(glNamedBufferStorage, m_UBO, sizeof(UBOData), &uboData/*glm::value_ptr(m_Camera->GetViewProjectionMatrix())*/ , GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
 
@@ -154,8 +154,7 @@ bool Renderer::Initialize()
 
     m_tree.Initialize("res/palm.obj");
     m_tree.InitTransfo("res/palmTransfo.txt");
-    m_tree.FindNormal();
-    m_desert.Initialize("res/desert.obj");
+    m_desert.Initialize("res/desert.obj", true);
 
     if (!m_tree_shader.Initialize()) return false;
 	if (!m_desert_shader.Initialize()) return false;
@@ -169,7 +168,6 @@ void Renderer::Render()
     GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, 0, m_UBO);
     Draw(m_tree, m_tree_shader, true);
     Draw(m_desert, m_desert_shader);
-    //Draw(m_desert, m_tree_shader);
 
     GL_CALL(glBindVertexArray, 0);
     GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, 0, 0);
