@@ -18,22 +18,28 @@ vec3 computeAmbientLightning()
     return vec3(0, 0, 0);
 }
 
-vec3 computeDiffuseLightning()
+vec3 computeDiffuseLightning(vec3 LightVector)
 {
-    return vec3(0, 0, 0);
+    float lambertTerm = max(dot(vNormal, LightVector), 0.0f);
+
+    return vec3(0.5, 0.5, 0.05) * lambertTerm;
 }
 
-vec3 computeSpecularLightning()
+vec3 computeSpecularLightning(vec3 LightVector)
 {
+//    vec3 r = reflect(LightVector, vNormal);
+
+//    return pow(max(dot(r, eyeVector), 0.0f), specularPower) * specularColor;
     return vec3(0, 0, 0);
 }
 
 void main()
 {
-    vec3 final_color = vec3(0.5f, 0, 0);
-    final_color += computeAmbientLightning();
-    final_color += computeDiffuseLightning();
-    final_color += computeSpecularLightning();
+    vec3 LightVector = normalize(vec3(-1., 2., 6.));
+
+    vec3 final_color = computeAmbientLightning();
+    final_color += computeDiffuseLightning(LightVector);
+    final_color += computeSpecularLightning(LightVector);
 
     outColor = vec4(final_color, 1);
 }
