@@ -560,7 +560,7 @@ void Window::Run()
         lastFrame = end;
         HandleCameraMovement(dt.count());
 
-        m_Renderer->Render();
+        m_Renderer->Render(dt.count());
 
         SwapBuffers(m_hDC);
     }

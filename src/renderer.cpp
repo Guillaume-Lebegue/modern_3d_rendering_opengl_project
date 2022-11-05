@@ -156,7 +156,7 @@ bool Renderer::Initialize()
     GL_CALL(glNamedBufferStorage, m_UBO, sizeof(UBOData), &uboData/*glm::value_ptr(m_Camera->GetViewProjectionMatrix())*/ , GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
 
     m_UBOData = GL_CALL_REINTERPRET_CAST_RETURN_VALUE(UBOData*, glMapNamedBufferRange, m_UBO, 0, sizeof(UBOData), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
-	
+
     float quadVertices[] = {
         // positions   // texCoords
         -1.0f,  1.0f,  0.0f, 1.0f,
@@ -179,8 +179,8 @@ bool Renderer::Initialize()
 	GL_CALL(glBindBuffer, GL_ARRAY_BUFFER, 0);
 
     m_tree.Initialize("res/palm.obj");
-    m_tree.InitTransfo("res/palmTransfo.txt");
-    m_desert.Initialize("res/desert.obj", true);
+    //m_tree.InitTransfo("res/palmTransfo.txt");
+    //m_desert.Initialize("res/desert.obj", true);
 
     if (!m_tree_shader.Initialize()) return false;
 	if (!m_desert_shader.Initialize()) return false;
@@ -209,16 +209,16 @@ bool Renderer::Initialize()
     return true;
 }
 
-void Renderer::Render()
+void Renderer::Render(float dt)
 {
-	GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, m_FBO);
+    GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, m_FBO);
     GL_CALL(glEnable, GL_DEPTH_TEST);
 	
     GL_CALL(glClear, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, 0, m_UBO);
     Draw(m_tree, m_tree_shader, true);
-    Draw(m_desert, m_desert_shader);
+    //Draw(m_desert, m_desert_shader);
 
     GL_CALL(glBindVertexArray, 0);
     GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, 0, 0);
@@ -228,7 +228,10 @@ void Renderer::Render()
 	GL_CALL(glBindFramebuffer, GL_FRAMEBUFFER, 0);
     GL_CALL(glDisable, GL_DEPTH_TEST);
     GL_CALL(glClear, GL_COLOR_BUFFER_BIT);
-	
+
+    GLuint shDt = GL_CALL(glGetUniformLocation, m_screen_shader.GetProgram(), "time");
+    GL_CALL(glProgramUniform1f, m_screen_shader.GetProgram(), shDt, dt);
+
     m_screen_shader.Use();
     GL_CALL(glBindVertexArray, m_quadVAO);
 	GL_CALL(glBindTexture, GL_TEXTURE_2D, m_FBOTexture);

@@ -24,6 +24,8 @@ public:
 
 	void Use() const;
 
+	GLuint GetProgram() const { return m_ShaderProgram; }
+
 private:
 	GLuint m_ShaderProgram;
 	const char* m_VertexShaderPath;

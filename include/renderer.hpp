@@ -43,7 +43,7 @@ public:
     Renderer& operator=(Renderer&&) = delete;
 
     bool Initialize();
-    void Render();
+    void Render(float dt);
     void Cleanup();
 
     void UpdateViewport(uint32_t width, uint32_t height);
